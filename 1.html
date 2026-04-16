@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная - Анатомический атлас</title>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <style>
+        /* Базовые стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Заголовок и навигация */
+        .header {
+            background-color: #dc2626;
+            padding: 15px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+        
+        .logo-text {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-button {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+            padding: 10px 24px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        
+        .nav-button:hover {
+            background-color: white;
+            color: #dc2626;
+            transform: translateY(-3px);
+        }
+        
+        .nav-button.active {
+            background-color: white;
+            color: #dc2626;
+        }
+
+        /* Основной контент */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 3D модель - центральный элемент */
+        .model-container {
+            width: 100%;
+            max-width: 1000px;
+            height: 600px;
+            margin: 30px 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            background-color: #fff;
+            position: relative;
+        }
+
+        model-viewer {
+            background-color: #bebebe;
+            width: 100%;
+            height: 100%;
+            --poster-color: transparent;
+            --progress-bar-color: #dc2626;
+        }
+
+        /* Аннотации (горячие точки) */
+        .hotspot-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .Hotspot {
+            background-color: white;
+            color: #dc2626;
+            border: 2px solid #dc2626;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-align: center;
+            flex: 1;
+            padding: 6px;
+            font-size: 0px;
+            max-width: 90px;
+        }
+        .Hotspot:hover{
+            background-color: rgb(255, 0, 0);
+            color: #ffffff;
+            border: 2px solid #dc2626;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            padding: 12px;
+            text-align: center;
+            max-width: 190px;
+            font-size: 20px;
+        }
+
+        /* Информационная панель */
+        .info-panel {
+            background-color: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+            max-width: 1000px;
+            width: 100%;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .info-title {
+            color: #dc2626;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .info-text {
+            font-size: 1.1rem;
+            color: #555;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        .info-highlight {
+            display: inline-block;
+            background-color: #fef2f2;
+            color: #dc2626;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            margin: 5px;
+            border: 1px solid #fecaca;
+        }
+
+        /* Быстрые ссылки */
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .quick-link {
+            background-color: #dc2626;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .quick-link:hover {
+            background-color: #b91c1c;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(220, 38, 38, 0.2);
+        }
+
+        /* Футер */
+        .footer {
+            background-color: #dc2626;
+            color: white;
+            text-align: center;
+            padding: 25px 20px;
+            margin-top: 50px;
+        }
+        
+        .footer-text {
+            font-size: 1.1rem;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1024px) {
+            .model-container {
+                height: 500px;
+                max-width: 900px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-buttons {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .model-container {
+                height: 400px;
+                margin: 20px 0;
+            }
+            
+            .info-panel {
+                padding: 20px;
+            }
+            
+            .info-title {
+                font-size: 1.8rem;
+            }
+            
+            .hotspot {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .model-container {
+                height: 350px;
+            }
+            
+            .nav-button, .quick-link {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .info-title {
+                font-size: 1.5rem;
+            }
+            
+            .info-text {
+                font-size: 1rem;
+            }
+            
+            .logo-text {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <img class="logo-icon" src="Icon1.jpg" alt="Логотип">
+                <span class="logo-text">BodyMap</span>
+            </div>
+            <div class="nav-buttons">
+                <a href="2.html" class="nav-button">Справочник</a>
+                <a href="1.html" class="nav-button active">Главная</a>
+                <a href="#" class="nav-button">Форум</a>
+            </div>
+        </div>
+    </header>
+    
+    <main class="main-content">
+        <!-- 3D модель -->
+        <div class="model-container">
+            <model-viewer 
+                src="anatomy_study_2.0_basemesh_human_male_body.glb" 
+                ar 
+                ar-modes="webxr scene-viewer quick-look" 
+                camera-controls 
+                tone-mapping="neutral" 
+                poster="poster.webp" 
+                shadow-intensity="1" 
+                camera-orbit="0deg 75deg 3.603m" 
+                field-of-view="30deg"
+                auto-rotate
+                rotation-per-second="30deg"
+                alt="3D модель человеческого тела">
+                    <button onclick="document.location='2.html'" class="Hotspot" slot="hotspot-1" data-position="0.2246420976522586m 1.2612051956217725m -0.03820456987546868m" data-normal="0.2788977959738298m -0.03699261115527798m 0.9596080273324387m" data-visibility-attribute="visible">
+        <div class="HotspotAnnotation">Бицепс</div>
+    </button>
+    <button onclick="document.location='2.html#chest'" class="Hotspot" slot="hotspot-2" data-position="0.003912804527052144m 1.3708216630805934m 0.09035264964794397m" data-normal="-0.16826481403471047m 0.2729902240471321m 0.9471870406274365m" data-visibility-attribute="visible">
+        <div class="HotspotAnnotation">Грудные мышцы</div>
+    </a>
+    <button onclick="document.location='2.html#forearms'" class="Hotspot" slot="hotspot-3" data-position="0.26675801540420774m 1.1082107640969363m -0.05168452841882963m" data-normal="-0.5135858129221819m 0.1950684275920631m 0.8355704167344734m" data-visibility-attribute="visible">
+        <div class="HotspotAnnotation">Предплечья</div>
+    </button>
+    <button onclick="document.location='2.html#back'" class="Hotspot" slot="hotspot-4" data-position="0.0020474586736592137m 1.4031941707621904m -0.1915314049136213m" data-normal="-0.07896024088989595m 0.0638377944487309m -0.9948316522701373m" data-visibility-attribute="visible">
+        <div class="HotspotAnnotation">Мышцы спины</div>
+    </button>
+    <button onclick="document.location='2.html#triceps'" class="Hotspot" slot="hotspot-5" data-position="-0.2583172772561615m 1.3216315872567606m -0.15930863105414872m" data-normal="-0.7930408237999738m 0.37814535790725623m -0.47759013817273505m" data-visibility-attribute="visible">
+        <div class="HotspotAnnotation">Трицепс</div>
+    </button>
+    <button onclick="document.location='2.html#shoulders'" class="Hotspot" slot="hotspot-9" data-position="0.2605569985548022m 1.4221900258858782m -0.0911996498233897m" data-normal="0.9173469484231661m 0.37097604680860835m 0.14439996160997612m" data-visibility-attribute="visible">
+        <div class="HotspotAnnotation">Дельты</div>
+    </button>
+    <button onclick="document.location='2.html#abs'" class="Hotspot" slot="hotspot-11" data-position="-0.00502820820475669m 1.2021271207213233m 0.09777790062525352m" data-normal="0.18629114849542874m -0.15153497402586827m 0.9707382549581703m" data-visibility-attribute="visible">
+        <div class="HotspotAnnotation">Пресс</div>
+    </button>
+    <button onclick="document.location='2.html#quadriceps'" class="Hotspot" slot="hotspot-14" data-position="0.13423232583080047m 0.797288455218796m 0.06935512497422654m" data-normal="0.5853427352340008m 0.004249427718957668m 0.8107748298219671m" data-visibility-attribute="visible">
+        <div class="HotspotAnnotation">Квадрицепс</div>
+    </button>
+    <button onclick="document.location='2.html#hamstrings'" class="Hotspot" slot="hotspot-16" data-position="-0.0900700638274996m 0.7658827834744277m -0.08490458709973964m" data-normal="-0.1920471088229171m -0.14044517676635987m -0.9712842325065432m" data-visibility-attribute="visible">
+        <div class="HotspotAnnotation">Бицепс бедра</div>
+    </button>
+    <button onclick="document.location='2.html#glutes'" class="Hotspot" slot="hotspot-17" data-position="-0.0025496423220046083m 0.9636703624128548m -0.12134921070296813m" data-normal="0.09543029891050342m 0.06350537735290507m -0.9934083375415758m" data-visibility-attribute="visible">
+        <div class="HotspotAnnotation">Ягодицы</div>
+    </button>
+    <button onclick="document.location='2.html#calves'" class="Hotspot" slot="hotspot-19" data-position="0.10028248032506581m 0.37876115893142537m -0.12417793949216441m" data-normal="-0.1049091795088996m 0.2941241282984446m -0.9499921374450683m" data-visibility-attribute="visible">
+        <div class="HotspotAnnotation">Икроножная</div>
+    </button>
+    </model-viewer>
+            </model-viewer>
+            
+            <!-- Горячие точки (Hotspots) -->
+            <div class="hotspot-container">
+                <a href="2.html#biceps" class="hotspot" style="top: 40%; left: 30%;">Бицепс</a>
+                <a href="2.html#chest" class="hotspot" style="top: 45%; left: 48%;">Грудные мышцы</a>
+                <a href="2.html#forearms" class="hotspot" style="top: 35%; left: 25%;">Предплечья</a>
+                <a href="2.html#back" class="hotspot" style="top: 45%; left: 52%;">Спина</a>
+                <a href="2.html#triceps" class="hotspot" style="top: 42%; left: 70%;">Трицепс</a>
+                <a href="2.html#shoulders" class="hotspot" style="top: 30%; left: 50%;">Плечи</a>
+                <a href="2.html#abs" class="hotspot" style="top: 55%; left: 48%;">Пресс</a>
+                <a href="2.html" class="hotspot" style="top: 70%; left: 40%;">Квадрицепс</a>
+                <a href="2.html" class="hotspot" style="top: 72%; left: 60%;">Бицепс бедра</a>
+                <a href="2.html" class="hotspot" style="top: 65%; left: 50%;">Ягодицы</a>
+                <a href="2.html" class="hotspot" style="top: 85%; left: 45%;">Икры</a>
+            </div>
+        </div>
+        
+        <!-- Информационная панель -->
+        <div class="info-panel">
+            <h1 class="info-title">Интерактивный атлас мышц человека</h1>
+            <p class="info-text">
+                Исследуйте 3D-модель человеческого тела, чтобы узнать о строении и функциях основных мышечных групп. 
+                Нажмите на любую область модели или выберите мышцу из списка ниже для получения подробной информации.
+            </p>
+            
+            <div>
+                <span class="info-highlight">11 мышечных групп</span>
+                <span class="info-highlight">30+ упражнений</span>
+                <span class="info-highlight">Детальные описания</span>
+                <span class="info-highlight">Техника выполнения</span>
+            </div>
+            
+            <div class="quick-links">
+                <a href="2.html#biceps" class="quick-link">Бицепс</a>
+                <a href="2.html#triceps" class="quick-link">Трицепс</a>
+                <a href="2.html#chest" class="quick-link">Грудь</a>
+                <a href="2.html#back" class="quick-link">Спина</a>
+                <a href="2.html#shoulders" class="quick-link">Плечи</a>
+                <a href="2.html#abs" class="quick-link">Пресс</a>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="disclaimer">
+    <p>⚠️ <strong>Дисклеймер:</strong> Данный сайт носит исключительно информационно-развлекательный характер и не является научным или медицинским ресурсом. Вся информация была взята из открытых источников и может содержать неточности. Перед началом тренировок проконсультируйтесь со специалистом.</p>
+</div>
+
+<style>
+.disclaimer {
+    max-width: 800px;
+    margin: 15px auto 0;
+    padding: 12px;
+    background-color: #fef2f2;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #666;
+    border-left: 4px solid #dc2626;
+}
+
+.disclaimer p {
+    margin: 0;
+    line-height: 1.4;
+}
+</style>
+        <p class="footer-text">&copy; BodyMap 2026</p>
+    </footer>
+</body>
+</html>
